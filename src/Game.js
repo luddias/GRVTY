@@ -3,20 +3,33 @@ class Game extends Phaser.Scene {
         super('Game');
     }
     create() {
+
+		var spaceBar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+		var tileInfo = this.textures.get('tile').getSourceImage();
+		this.gameSpeed = 10;
+
         this.add.sprite(0, 0, 'background').setOrigin(0,0);
         this.stateStatus = null;
         this._score = 0;
         this._time = 10;
 		this._gamePaused = false;
 		this._runOnce = false;
+		const {height, width } = EPT.world;
 
-		this.buttonDummy = new Button(EPT.world.centerX, EPT.world.centerY, 'clickme', this.addPoints, this, 'static');
-        this.buttonDummy.setOrigin(0.5,0.5);
-        this.buttonDummy.setAlpha(0);
-        this.buttonDummy.setScale(0.1);
-        this.tweens.add({targets: this.buttonDummy, alpha: 1, duration: 500, ease: 'Linear'});
-        this.tweens.add({targets: this.buttonDummy, scale: 1, duration: 500, ease: 'Back'});
-        
+		this.ground = this.add.tileSprite(0, height, width, 26, 'tile').setOrigin(0,1);
+		// this.buttonDummy = new Button(EPT.world.centerX, EPT.world.centerY, 'clickme', this.addPoints, this, 'static');
+        // this.buttonDummy.setOrigin(0.5,0.5);
+        // this.buttonDummy.setAlpha(0);
+        // this.buttonDummy.setScale(0.1);
+        // this.tweens.add({targets: this.buttonDummy, alpha: 1, duration: 500, ease: 'Linear'});
+        // this.tweens.add({targets: this.buttonDummy, scale: 1, duration: 500, ease: 'Back'});
+		this.player = this.physics.add.sprite(20, height, 'player')
+		.setOrigin(0, 1)
+		.setCollideWorldBounds(true)
+		.setGravityY(5000);
+
+		this.handleInputs();
+
         this.initUI();
         this.currentTimer = this.time.addEvent({
             delay: 1000,
@@ -53,8 +66,12 @@ class Game extends Phaser.Scene {
 				break;
 			}
 			case 'playing': {
+				this.input.keyboard.on('keydown_SPACE', () => {
+					this.player.setVelocityY(-200);
+				});
 				this.statePlaying();
 			}
+			
 			default: {
 			}
 		}
@@ -77,6 +94,11 @@ class Game extends Phaser.Scene {
                 this.stateRestart();
                 break;
             }
+			case 'Space': {
+				console.log("blabla")
+                this.player.setVelocityY(-1600);
+                break;
+            }
             default: {}
         }
     }
@@ -87,7 +109,6 @@ class Game extends Phaser.Scene {
 		if(this._gamePaused) {
 			EPT.fadeOutIn(function(self){
 				self.buttonPause.input.enabled = false;
-				self.buttonDummy.input.enabled = false;
 				self.stateStatus = 'paused';
 				self._runOnce = false;
 			}, this);
@@ -99,7 +120,6 @@ class Game extends Phaser.Scene {
 		else {
 			EPT.fadeOutIn(function(self){
 				self.buttonPause.input.enabled = true;
-				self.buttonDummy.input.enabled = true;
 				self._stateStatus = 'playing';
 				self._runOnce = false;
 			}, this);
@@ -110,10 +130,7 @@ class Game extends Phaser.Scene {
         }
     }
 	statePlaying() {
-        if(this._time === 0) {
-            this._runOnce = false;
-            this.stateStatus = 'gameover';
-        }
+		this.ground.tilePositionX += this.gameSpeed;
 	}
 	statePaused() {
         this.screenPausedGroup.toggleVisible();
@@ -124,7 +141,6 @@ class Game extends Phaser.Scene {
 		EPT.fadeOutIn(function(self){
 			self.screenGameoverGroup.toggleVisible();			
 			self.buttonPause.input.enabled = false;
-			self.buttonDummy.input.enabled = false;
 			self.screenGameoverScore.setText(EPT.text['gameplay-score']+self._score);
 			self.gameoverScoreTween();
 		}, this);
@@ -134,6 +150,8 @@ class Game extends Phaser.Scene {
 		this.tweens.add({targets: this.screenGameoverRestart, x: EPT.world.width-100, duration: 500, delay: 250, ease: 'Back'});
 	}
     initUI() {
+
+		
 		this.buttonPause = new Button(20, 20, 'button-pause', this.managePause, this);
 		this.buttonPause.setOrigin(0,0);
 
@@ -237,5 +255,12 @@ class Game extends Phaser.Scene {
 				}
 			});
 		}
+	}
+
+	handleInputs(){
+		this.input.keyboard.on('keydown_SPACE', () =>{
+			this.player.setVelocityY(-1600);
+		});
+
 	}
 };

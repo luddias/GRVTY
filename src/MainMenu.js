@@ -122,6 +122,8 @@ class MainMenu extends Phaser.Scene {
     startPreloadInTheBackground() {
         console.log('[EPT] Starting background loading...');
         this.load.image('img/clickme');
+        this.load.image('img/tile');
+        this.load.image('img/player');
         this.load.once('filecomplete', this.addFiles, this);
         this.load.start();
     }
@@ -132,7 +134,10 @@ class MainMenu extends Phaser.Scene {
                 ['overlay', 'img/overlay.png'],
                 ['button-beer', 'img/button-beer.png'],
                 ['banner-beer', 'img/banner-beer.png'],
-                ['particle', 'img/particle.png']
+                ['banner-beer', 'img/banner-beer.png'],
+                ['particle', 'img/particle.png'],
+                ['tile','img/tile.png'],
+                ['player', 'img/player.png']
             ],
             'spritesheet': [
                 ['button-continue', 'img/button-continue.png', {frameWidth:180,frameHeight:180}],

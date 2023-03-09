@@ -25,10 +25,16 @@ if(enablePWA) {
 
 var gameConfig = {
 	scale: {
-		mode: Phaser.Scale.FIT,
+		type: Phaser.AUTO,
 		autoCenter: Phaser.Scale.CENTER_BOTH,
-		width: 640,
-		height: 960
+		width: 800,
+		height: 600,
+	},
+	physics: {
+		default:'arcade',
+		arcade: {
+			gravity: {y:450}
+		}
 	},
 	scene: [Boot, Preloader, MainMenu, Settings, Story, Game]
 }

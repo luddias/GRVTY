@@ -57,7 +57,10 @@ var appShellFiles = [
   './img/overlay.png',
   './img/particle.png',
   './img/pattern.png',
-  './img/title.png'
+  './img/title.png',
+  './img/player.png',
+  './img/tile.png'
+  
 ];
 
 self.addEventListener('install', function(e) {
