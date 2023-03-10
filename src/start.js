@@ -33,7 +33,7 @@ var gameConfig = {
 	physics: {
 		default:'arcade',
 		arcade: {
-			gravity: {y:450}
+			gravity: {y:0}
 		}
 	},
 	scene: [Boot, Preloader, MainMenu, Settings, Story, Game]

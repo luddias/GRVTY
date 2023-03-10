@@ -3,7 +3,6 @@ class Game extends Phaser.Scene {
         super('Game');
     }
     create() {
-
 		var spaceBar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 		var tileInfo = this.textures.get('tile').getSourceImage();
 		this.gameSpeed = 10;
@@ -26,24 +25,25 @@ class Game extends Phaser.Scene {
 		this.player = this.physics.add.sprite(20, height, 'player')
 		.setOrigin(0, 1)
 		.setCollideWorldBounds(true)
-		.setGravityY(5000);
+		.setGravityY(0);
 
+		this.physics.add.collider(this.player, this.ground);
 		this.handleInputs();
 
         this.initUI();
-        this.currentTimer = this.time.addEvent({
-            delay: 1000,
-            callback: function(){
-                this._time--;
-                this.textTime.setText(EPT.text['gameplay-timeleft']+this._time);
-                if(!this._time) {
-                    this._runOnce = false;
-                    this.stateStatus = 'gameover';
-                }
-            },
-            callbackScope: this,
-            loop: true
-        });
+        // this.currentTimer = this.time.addEvent({
+        //     delay: 1000,
+        //     callback: function(){
+        //         this._time--;
+        //         this.textTime.setText(EPT.text['gameplay-timeleft']+this._time);
+        //         if(!this._time) {
+        //             this._runOnce = false;
+        //             this.stateStatus = 'gameover';
+        //         }
+        //     },
+        //     callbackScope: this,
+        //     loop: true
+        // });
 
 		this.input.keyboard.on('keydown', this.handleKey, this);
         this.cameras.main.fadeIn(250);
@@ -51,13 +51,13 @@ class Game extends Phaser.Scene {
     }
 	update() {
 		switch(this.stateStatus) {
-			case 'paused': {
-				if(!this._runOnce) {
-					this.statePaused();
-					this._runOnce = true;
-				}
-				break;
-			}
+			// case 'paused': {
+			// 	if(!this._runOnce) {
+			// 		this.statePaused();
+			// 		this._runOnce = true;
+			// 	}
+			// 	break;
+			// }
 			case 'gameover': {
 				if(!this._runOnce) {
 					this.stateGameover();
@@ -66,9 +66,6 @@ class Game extends Phaser.Scene {
 				break;
 			}
 			case 'playing': {
-				this.input.keyboard.on('keydown_SPACE', () => {
-					this.player.setVelocityY(-200);
-				});
 				this.statePlaying();
 			}
 			
@@ -82,10 +79,6 @@ class Game extends Phaser.Scene {
                 this.addPoints();
                 break;
             }
-            case 'KeyP': {
-                this.managePause();
-                break;
-            }
             case 'KeyB': {
                 this.stateBack();
                 break;
@@ -95,52 +88,56 @@ class Game extends Phaser.Scene {
                 break;
             }
 			case 'Space': {
-				console.log("blabla")
-                this.player.setVelocityY(-1600);
+				console.log(this.player.y, EPT.world.height)
+				if (this.player.y<=EPT.world.height && this.player.y>=(EPT.world.height-30)) {
+					this.player.setVelocityY(-1300);
+					break;
+				}
+                this.player.setVelocityY(1300);
+				
                 break;
             }
             default: {}
         }
     }
-    managePause() {
-        this._gamePaused =! this._gamePaused;
-        this.currentTimer.paused =! this.currentTimer.paused;
-		EPT.Sfx.play('click');
-		if(this._gamePaused) {
-			EPT.fadeOutIn(function(self){
-				self.buttonPause.input.enabled = false;
-				self.stateStatus = 'paused';
-				self._runOnce = false;
-			}, this);
-			this.screenPausedBack.x = -this.screenPausedBack.width-20;
-			this.tweens.add({targets: this.screenPausedBack, x: 100, duration: 500, delay: 250, ease: 'Back'});
-			this.screenPausedContinue.x = EPT.world.width+this.screenPausedContinue.width+20;
-			this.tweens.add({targets: this.screenPausedContinue, x: EPT.world.width-100, duration: 500, delay: 250, ease: 'Back'});
-		}
-		else {
-			EPT.fadeOutIn(function(self){
-				self.buttonPause.input.enabled = true;
-				self._stateStatus = 'playing';
-				self._runOnce = false;
-			}, this);
-			this.screenPausedBack.x = 100;
-			this.tweens.add({targets: this.screenPausedBack, x: -this.screenPausedBack.width-20, duration: 500, ease: 'Back'});
-			this.screenPausedContinue.x = EPT.world.width-100;
-			this.tweens.add({targets: this.screenPausedContinue, x: EPT.world.width+this.screenPausedContinue.width+20, duration: 500, ease: 'Back'});
-        }
-    }
+    // managePause() {
+    //     this._gamePaused =! this._gamePaused;
+    //     this.currentTimer.paused =! this.currentTimer.paused;
+	// 	EPT.Sfx.play('click');
+	// 	if(this._gamePaused) {
+	// 		EPT.fadeOutIn(function(self){
+
+	// 			self.stateStatus = 'paused';
+	// 			self._runOnce = false;
+	// 		}, this);
+	// 		this.screenPausedBack.x = -this.screenPausedBack.width-20;
+	// 		this.tweens.add({targets: this.screenPausedBack, x: 100, duration: 500, delay: 250, ease: 'Back'});
+	// 		this.screenPausedContinue.x = EPT.world.width+this.screenPausedContinue.width+20;
+	// 		this.tweens.add({targets: this.screenPausedContinue, x: EPT.world.width-100, duration: 500, delay: 250, ease: 'Back'});
+	// 	}
+	// 	else {
+	// 		EPT.fadeOutIn(function(self){
+	// 			self._stateStatus = 'playing';
+	// 			self._runOnce = false;
+	// 		}, this);
+	// 		this.screenPausedBack.x = 100;
+	// 		this.tweens.add({targets: this.screenPausedBack, x: -this.screenPausedBack.width-20, duration: 500, ease: 'Back'});
+	// 		this.screenPausedContinue.x = EPT.world.width-100;
+	// 		this.tweens.add({targets: this.screenPausedContinue, x: EPT.world.width+this.screenPausedContinue.width+20, duration: 500, ease: 'Back'});
+    //     }
+    // }
 	statePlaying() {
 		this.ground.tilePositionX += this.gameSpeed;
 	}
-	statePaused() {
-        this.screenPausedGroup.toggleVisible();
-	}
+	// statePaused() {
+    //     this.screenPausedGroup.toggleVisible();
+	// }
 	stateGameover() {
 		this.currentTimer.paused =! this.currentTimer.paused;
 		EPT.Storage.setHighscore('EPT-highscore',this._score);
 		EPT.fadeOutIn(function(self){
 			self.screenGameoverGroup.toggleVisible();			
-			self.buttonPause.input.enabled = false;
+			// self.buttonPause.input.enabled = false;
 			self.screenGameoverScore.setText(EPT.text['gameplay-score']+self._score);
 			self.gameoverScoreTween();
 		}, this);
@@ -152,8 +149,8 @@ class Game extends Phaser.Scene {
     initUI() {
 
 		
-		this.buttonPause = new Button(20, 20, 'button-pause', this.managePause, this);
-		this.buttonPause.setOrigin(0,0);
+		// this.buttonPause = new Button(20, 20, 'button-pause', this.managePause, this);
+		// this.buttonPause.setOrigin(0,0);
 
 		var fontScore = { font: '38px '+EPT.text['FONT'], fill: '#ffde00', stroke: '#000', strokeThickness: 5 };
 		var fontScoreWhite =  { font: '38px '+EPT.text['FONT'], fill: '#000', stroke: '#ffde00', strokeThickness: 5 };
@@ -169,8 +166,8 @@ class Game extends Phaser.Scene {
 		this.textTime.y = EPT.world.height+this.textTime.height+30;
 		this.tweens.add({targets: this.textTime, y: EPT.world.height-30, duration: 500, ease: 'Back'});		
 
-		this.buttonPause.y = -this.buttonPause.height-20;
-        this.tweens.add({targets: this.buttonPause, y: 20, duration: 500, ease: 'Back'});
+		// this.buttonPause.y = -this.buttonPause.height-20;
+        // this.tweens.add({targets: this.buttonPause, y: 20, duration: 500, ease: 'Back'});
 
 		var fontTitle = { font: '48px '+EPT.text['FONT'], fill: '#000', stroke: '#ffde00', strokeThickness: 10 };
 
