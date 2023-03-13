@@ -16,6 +16,8 @@ class Game extends Phaser.Scene {
 		const {height, width } = EPT.world;
 
 		this.ground = this.add.tileSprite(0, height, width, 26, 'tile').setOrigin(0,1);
+		this.upGround = this.add.tileSprite(0, 0, width, 26, 'tile').setOrigin(0,1);
+		this.upGround.setScale(1, -1); // vira verticalmente
 		// this.buttonDummy = new Button(EPT.world.centerX, EPT.world.centerY, 'clickme', this.addPoints, this, 'static');
         // this.buttonDummy.setOrigin(0.5,0.5);
         // this.buttonDummy.setAlpha(0);
@@ -25,9 +27,11 @@ class Game extends Phaser.Scene {
 		this.player = this.physics.add.sprite(20, height, 'player')
 		.setOrigin(0, 1)
 		.setCollideWorldBounds(true)
-		.setGravityY(0);
+		.setGravityY(0)
+		.setScale(0.2,0.2);
 
 		this.physics.add.collider(this.player, this.ground);
+		this.physics.add.collider(this.player, this.upGround);
 		this.handleInputs();
 
         this.initUI();
@@ -88,12 +92,15 @@ class Game extends Phaser.Scene {
                 break;
             }
 			case 'Space': {
-				console.log(this.player.y, EPT.world.height)
+				console.log(this.player.y, EPT.world.height);
 				if (this.player.y<=EPT.world.height && this.player.y>=(EPT.world.height-30)) {
 					this.player.setVelocityY(-1300);
+
+
 					break;
 				}
                 this.player.setVelocityY(1300);
+
 				
                 break;
             }
@@ -128,6 +135,7 @@ class Game extends Phaser.Scene {
     // }
 	statePlaying() {
 		this.ground.tilePositionX += this.gameSpeed;
+		this.upGround.tilePositionX += this.gameSpeed;
 	}
 	// statePaused() {
     //     this.screenPausedGroup.toggleVisible();
