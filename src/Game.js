@@ -24,11 +24,13 @@ class Game extends Phaser.Scene {
         // this.buttonDummy.setScale(0.1);
         // this.tweens.add({targets: this.buttonDummy, alpha: 1, duration: 500, ease: 'Linear'});
         // this.tweens.add({targets: this.buttonDummy, scale: 1, duration: 500, ease: 'Back'});
-		this.player = this.physics.add.sprite(20, height, 'player')
+		this.player = this.physics.add.sprite(40, height, 'player')
 		.setOrigin(0, 1)
 		.setCollideWorldBounds(true)
 		.setGravityY(0)
 		.setScale(0.2,0.2);
+
+		this.player.angle = 0;
 
 		this.physics.add.collider(this.player, this.ground);
 		this.physics.add.collider(this.player, this.upGround);
@@ -94,12 +96,14 @@ class Game extends Phaser.Scene {
 			case 'Space': {
 				console.log(this.player.y, EPT.world.height);
 				if (this.player.y<=EPT.world.height && this.player.y>=(EPT.world.height-30)) {
-					this.player.setVelocityY(-1300);
-
+					this.saltar()
 
 					break;
 				}
                 this.player.setVelocityY(1300);
+				this.player.angle = 0;
+				sprite.scaleY = 1;
+
 
 				
                 break;
@@ -107,6 +111,20 @@ class Game extends Phaser.Scene {
             default: {}
         }
     }
+
+	async saltar(){
+		this.player.setVelocityY(-1300);
+		await new Promise(resolve => setTimeout(resolve, 80));
+		// this.player.angle = 180;
+		// sprite.scaleY = -1;
+
+		this.tweens.add({
+			targets: this.player,
+			duration: 1000, // tempo em milissegundos
+			scaleY: -1,
+		});
+	}
+
     // managePause() {
     //     this._gamePaused =! this._gamePaused;
     //     this.currentTimer.paused =! this.currentTimer.paused;
