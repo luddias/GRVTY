@@ -1,3 +1,5 @@
+
+
 class Game extends Phaser.Scene {
     constructor() {
         super('Game');
@@ -5,18 +7,29 @@ class Game extends Phaser.Scene {
     create() {
 		var spaceBar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 		var tileInfo = this.textures.get('tile').getSourceImage();
-		this.gameSpeed = 10;
+		this.gameSpeed = 0;
+		this.cont = 0;
 
-        this.add.sprite(0, 0, 'background').setOrigin(0,0);
+		this.add.sprite(0, 0, 'background').setOrigin(0,0);
+		this.fundoPredios = this.add.sprite(0, 0, 'predios').setOrigin(0,0);		
+
         this.stateStatus = null;
         this._score = 0;
-        this._time = 10;
+        this._time = 0;
 		this._gamePaused = false;
 		this._runOnce = false;
 		const {height, width } = EPT.world;
 
-		this.ground = this.add.tileSprite(0, height, width, 26, 'tile').setOrigin(0,1);
-		this.upGround = this.add.tileSprite(0, 0, width, 26, 'tile').setOrigin(0,1);
+		this.anims.create({
+			key: 'playerAnim',
+			frames: this.anims.generateFrameNumbers('splayer', { start: 1, end: 14 }),
+			frameRate: 5,
+			repeat: -1
+		});
+		
+
+		this.ground = this.add.tileSprite(0, height, width, 26, 'tile1').setOrigin(0,1);
+		this.upGround = this.add.tileSprite(0, 0, width, 26, 'tile2').setOrigin(0,1);
 		this.upGround.setScale(1, -1); // vira verticalmente
 		// this.buttonDummy = new Button(EPT.world.centerX, EPT.world.centerY, 'clickme', this.addPoints, this, 'static');
         // this.buttonDummy.setOrigin(0.5,0.5);
@@ -24,17 +37,19 @@ class Game extends Phaser.Scene {
         // this.buttonDummy.setScale(0.1);
         // this.tweens.add({targets: this.buttonDummy, alpha: 1, duration: 500, ease: 'Linear'});
         // this.tweens.add({targets: this.buttonDummy, scale: 1, duration: 500, ease: 'Back'});
-		this.player = this.physics.add.sprite(40, height, 'player')
-		.setOrigin(0, 1)
+		this.player = this.physics.add.sprite(150, height, 'splayer')
+		.setOrigin(0.5,0.5)
 		.setCollideWorldBounds(true)
 		.setGravityY(0)
-		.setScale(0.2,0.2);
+		.setScale(2,2);
 
 		this.player.angle = 0;
 
+		this.player.anims.play('playerAnim', true);
+
+
 		this.physics.add.collider(this.player, this.ground);
 		this.physics.add.collider(this.player, this.upGround);
-		this.handleInputs();
 
         this.initUI();
         // this.currentTimer = this.time.addEvent({
@@ -73,6 +88,7 @@ class Game extends Phaser.Scene {
 			}
 			case 'playing': {
 				this.statePlaying();
+				
 			}
 			
 			default: {
@@ -81,10 +97,6 @@ class Game extends Phaser.Scene {
 	}
     handleKey(e) {
         switch(e.code) {
-            case 'Enter': {
-                this.addPoints();
-                break;
-            }
             case 'KeyB': {
                 this.stateBack();
                 break;
@@ -98,15 +110,12 @@ class Game extends Phaser.Scene {
 				if (this.player.y<=EPT.world.height && this.player.y>=(EPT.world.height-30)) {
 					this.saltar()
 
-					break;
 				}
-                this.player.setVelocityY(1300);
-				this.player.angle = 0;
-				sprite.scaleY = 1;
+				else if(this.player.y>=0 && this.player.y<=40){
+					this.voltar()
 
-
-				
-                break;
+				}
+				break;
             }
             default: {}
         }
@@ -114,15 +123,31 @@ class Game extends Phaser.Scene {
 
 	async saltar(){
 		this.player.setVelocityY(-1300);
+		this.tweens.add({
+			targets: this.player,
+			duration: 300, // tempo em milissegundos
+			angle: -180,
+			y: this.player.y - 500,
+			
+		},200);
+
+		this.player.scaleX *= (-1);
+	}
+
+	async voltar(){
+		this.player.setVelocityY(1300);
 		await new Promise(resolve => setTimeout(resolve, 80));
 		// this.player.angle = 180;
 		// sprite.scaleY = -1;
 
 		this.tweens.add({
 			targets: this.player,
-			duration: 1000, // tempo em milissegundos
-			scaleY: -1,
-		});
+			duration: 200, // tempo em milissegundos
+			angle: 0,
+			
+		},200);
+
+		this.player.scaleX *= (-1);
 	}
 
     // managePause() {
@@ -152,8 +177,24 @@ class Game extends Phaser.Scene {
     //     }
     // }
 	statePlaying() {
+		console.log(this.gameSpeed)
+		this._time +=1;
 		this.ground.tilePositionX += this.gameSpeed;
 		this.upGround.tilePositionX += this.gameSpeed;
+		this.addPoints();
+		if (this.gameSpeed<=4){
+			this.gameSpeed+=0.01;
+		}
+		else if(this.gameSpeed<=8){
+			this.gameSpeed+=0.001;
+		}
+		else if(this.gameSpeed>=this.cont*10 && this._score<=this.cont*20){
+			this.gameSpeed+=0.001;
+		}
+		else if(this.gameSpeed._score>=10){
+			this.cont+=1
+		}
+		this.colocarObstaculos()
 	}
 	// statePaused() {
     //     this.screenPausedGroup.toggleVisible();
@@ -185,12 +226,7 @@ class Game extends Phaser.Scene {
 
 		this.textScore.y = -this.textScore.height-20;
 		this.tweens.add({targets: this.textScore, y: 45, duration: 500, delay: 100, ease: 'Back'});
-
-		this.textTime = this.add.text(30, EPT.world.height-30, EPT.text['gameplay-timeleft']+this._time, fontScore);
-		this.textTime.setOrigin(0,1);
-
-		this.textTime.y = EPT.world.height+this.textTime.height+30;
-		this.tweens.add({targets: this.textTime, y: EPT.world.height-30, duration: 500, ease: 'Back'});		
+	
 
 		// this.buttonPause.y = -this.buttonPause.height-20;
         // this.tweens.add({targets: this.buttonPause, y: 20, duration: 500, ease: 'Back'});
@@ -233,16 +269,11 @@ class Game extends Phaser.Scene {
 		this.screenGameoverGroup.toggleVisible();
     }
     addPoints() {
-		this._score += 10;
+		if(this._time%10 == 0)
+			this._score += 1;
         this.textScore.setText(EPT.text['gameplay-score']+this._score);
         
-        var randX = Phaser.Math.Between(200, EPT.world.width-200);
-        var randY = Phaser.Math.Between(200, EPT.world.height-200);
-		var pointsAdded = this.add.text(randX, randY, '+10', { font: '48px '+EPT.text['FONT'], fill: '#ffde00', stroke: '#000', strokeThickness: 10 });
-		pointsAdded.setOrigin(0.5, 0.5);
-        this.tweens.add({targets: pointsAdded, alpha: 0, y: randY-50, duration: 1000, ease: 'Linear'});
 
-        this.cameras.main.shake(100, 0.01, true);
     }
 	stateRestart() {
 		EPT.Sfx.play('click');
@@ -280,10 +311,18 @@ class Game extends Phaser.Scene {
 		}
 	}
 
-	handleInputs(){
-		this.input.keyboard.on('keydown_SPACE', () =>{
-			this.player.setVelocityY(-1600);
-		});
+	colocarObstaculos(){
+		const {height, width } = EPT.world;
+
+		const obsNum = Math.floor(Math.random()*7)+1;
+		const distance = Phaser.Math.Between(600,900);
+		const obsHeight = [100, height-30]
+		let obs;
+		if(obsNum>6){
+			obs = this.obs.create(width+distance, height - obsHeight[Math.floor(Math.random)*2], 'obs');
+		} else{
+
+		}
 
 	}
 };

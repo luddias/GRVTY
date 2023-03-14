@@ -4,10 +4,14 @@ class Boot extends Phaser.Scene {
     }
     preload() {
         this.load.image('background', 'img/background.png');
+        this.load.image('predios', 'img/predios.png');
         this.load.image('logo-enclave', 'img/logo-enclave.png');
-        this.load.image('loading-background', 'img/loading-background.png');
-        this.load.image('tile', 'img/tile.png');
+        this.load.image('tile2', 'img/tile2.png');
+        this.load.image('tile1', 'img/tile1.png');
         this.load.image('player', 'img/player.png');
+        this.load.image('obs', 'img/obs.png');
+
+        this.load.spritesheet('splayer', 'img/DinoSprites - doux.png', { frameWidth: 24, frameHeight: 24 });
         WebFont.load({ custom: { families: ['Berlin'], urls: ['fonts/BRLNSDB.css'] } });
     }
     create() {
