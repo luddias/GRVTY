@@ -10,6 +10,10 @@ class Boot extends Phaser.Scene {
         this.load.image('tile1', 'img/tile1.png');
         this.load.image('player', 'img/player.png');
         this.load.image('obs', 'img/obs.png');
+        this.load.image('obs1', 'img/obs1.png');
+        this.load.image('obs2', 'img/obs2.png');
+        this.load.image('obs3', 'img/obs3.png');
+
 
         this.load.spritesheet('splayer', 'img/DinoSprites - doux.png', { frameWidth: 24, frameHeight: 24 });
         WebFont.load({ custom: { families: ['Berlin'], urls: ['fonts/BRLNSDB.css'] } });

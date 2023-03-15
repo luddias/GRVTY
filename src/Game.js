@@ -9,9 +9,11 @@ class Game extends Phaser.Scene {
 		var tileInfo = this.textures.get('tile').getSourceImage();
 		this.gameSpeed = 0;
 		this.cont = 0;
+		this.respawnTime = 0;
 
 		this.add.sprite(0, 0, 'background').setOrigin(0,0);
-		this.fundoPredios = this.add.sprite(0, 0, 'predios').setOrigin(0,0);		
+		this.fundoPredios = this.add.sprite(0, 0, 'predios').setOrigin(0,0);
+		
 
         this.stateStatus = null;
         this._score = 0;
@@ -27,7 +29,6 @@ class Game extends Phaser.Scene {
 			repeat: -1
 		});
 		
-
 		this.ground = this.add.tileSprite(0, height, width, 26, 'tile1').setOrigin(0,1);
 		this.upGround = this.add.tileSprite(0, 0, width, 26, 'tile2').setOrigin(0,1);
 		this.upGround.setScale(1, -1); // vira verticalmente
@@ -106,7 +107,6 @@ class Game extends Phaser.Scene {
                 break;
             }
 			case 'Space': {
-				console.log(this.player.y, EPT.world.height);
 				if (this.player.y<=EPT.world.height && this.player.y>=(EPT.world.height-30)) {
 					this.saltar()
 
@@ -177,10 +177,20 @@ class Game extends Phaser.Scene {
     //     }
     // }
 	statePlaying() {
-		console.log(this.gameSpeed)
 		this._time +=1;
 		this.ground.tilePositionX += this.gameSpeed;
 		this.upGround.tilePositionX += this.gameSpeed;
+		
+		this.respawnTime += 0.01;
+
+		console.log(this.respawnTime);
+
+		if(this.respawnTime>=5) {
+			this.colocarObstaculos();
+			this.respawnTime = 0;
+		}
+
+		// Phaser.Actions.IncX(obs.)
 		this.addPoints();
 		if (this.gameSpeed<=4){
 			this.gameSpeed+=0.01;
@@ -194,7 +204,8 @@ class Game extends Phaser.Scene {
 		else if(this.gameSpeed._score>=10){
 			this.cont+=1
 		}
-		this.colocarObstaculos()
+		// if (this._time%10 == 0)
+		// 	this.colocarObstaculos()
 	}
 	// statePaused() {
     //     this.screenPausedGroup.toggleVisible();
@@ -314,15 +325,17 @@ class Game extends Phaser.Scene {
 	colocarObstaculos(){
 		const {height, width } = EPT.world;
 
-		const obsNum = Math.floor(Math.random()*7)+1;
+		const obsNum = Math.floor(Math.random()*3)+1;
 		const distance = Phaser.Math.Between(600,900);
-		const obsHeight = [100, height-30]
-		let obs;
-		if(obsNum>6){
-			obs = this.obs.create(width+distance, height - obsHeight[Math.floor(Math.random)*2], 'obs');
-		} else{
+		const obsHeight = [100, height-30];
 
-		}
+		this.obs = this.physics.add.sprite(width, height/2, 'obs1' ).setOrigin(0,0);
+		this.physics.moveTo(this.obs, 0, height/2, this.gameSpeed*100);
+
+		console.log(this.obs.x);
+		// width+distance, obsHeight[Math.floor(Math.random()*2)
 
 	}
+
+	
 };
