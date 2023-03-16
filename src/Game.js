@@ -5,11 +5,15 @@ class Game extends Phaser.Scene {
         super('Game');
     }
     create() {
+		this.startTime = this.time.now;
 		var spaceBar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 		var tileInfo = this.textures.get('tile').getSourceImage();
-		this.gameSpeed = 0;
-		this.cont = 0;
-		this.respawnTime = 0;
+		this.gameSpeed = 5;
+		this.obstaculos =this.physics.add.group();
+		this.obstacleSpeed = 200; // velocidade inicial dos obstáculos
+		this.speedIncreaseInterval = 50000;
+		this.gOver=false;
+		this.cont=0;
 
 		this.add.sprite(0, 0, 'background').setOrigin(0,0);
 		this.fundoPredios = this.add.sprite(0, 0, 'predios').setOrigin(0,0);
@@ -24,11 +28,18 @@ class Game extends Phaser.Scene {
 
 		this.anims.create({
 			key: 'playerAnim',
-			frames: this.anims.generateFrameNumbers('splayer', { start: 1, end: 14 }),
+			frames: this.anims.generateFrameNumbers('splayer', { start: 1, end: 13 }),
 			frameRate: 5,
 			repeat: -1
 		});
 		
+		this.anims.create({
+			key: 'animdead',
+			frames: this.anims.generateFrameNumbers('splayer', { start: 14, end: 15 }),
+			frameRate: 5,
+			repeat: -1
+		});
+
 		this.ground = this.add.tileSprite(0, height, width, 26, 'tile1').setOrigin(0,1);
 		this.upGround = this.add.tileSprite(0, 0, width, 26, 'tile2').setOrigin(0,1);
 		this.upGround.setScale(1, -1); // vira verticalmente
@@ -46,8 +57,8 @@ class Game extends Phaser.Scene {
 
 		this.player.angle = 0;
 
-		this.player.anims.play('playerAnim', true);
-
+		this.player.anims.play('playerAnim', true);0
+		
 
 		this.physics.add.collider(this.player, this.ground);
 		this.physics.add.collider(this.player, this.upGround);
@@ -176,42 +187,63 @@ class Game extends Phaser.Scene {
 	// 		this.tweens.add({targets: this.screenPausedContinue, x: EPT.world.width+this.screenPausedContinue.width+20, duration: 500, ease: 'Back'});
     //     }
     // }
-	statePlaying() {
-		this._time +=1;
+	async statePlaying() {
+		this._time = this.time.now - this.startTime;
 		this.ground.tilePositionX += this.gameSpeed;
 		this.upGround.tilePositionX += this.gameSpeed;
+		this.cont+=1;
+
+		if(this.cont===5){
+			this.addPoints();
+			this.cont=0;
+		}
 		
-		this.respawnTime += 0.01;
+		this.time.addEvent({
+			delay: 15000,
+			callback: this.colocarObstaculos(),
+			callbackScope: this,
+			loop: true
+		});	
 
-		console.log(this.respawnTime);
+		this.physics.add.collider(this.player, this.obstaculos, () =>{
+			console.log('Você colidiu com um obstáculo!');
+			this.gOver=true;
+		});
 
-		if(this.respawnTime>=5) {
-			this.colocarObstaculos();
-			this.respawnTime = 0;
-		}
+		if(this.gOver===true){
+			this._runOnce = false;
+			this.obstaculos.getChildren().forEach(function(child) {
+				child.setVelocityX(0); 
+				child.setVelocityY(0); 
+			  });
+			this.player.setVelocity(0);
+			this.gameSpeed=0;
+			this.player.anims.play('playerAnim', false);
+			this.stateStatus = 'gameover';
 
-		// Phaser.Actions.IncX(obs.)
-		this.addPoints();
-		if (this.gameSpeed<=4){
-			this.gameSpeed+=0.01;
+			  
+
 		}
-		else if(this.gameSpeed<=8){
-			this.gameSpeed+=0.001;
-		}
-		else if(this.gameSpeed>=this.cont*10 && this._score<=this.cont*20){
-			this.gameSpeed+=0.001;
-		}
-		else if(this.gameSpeed._score>=10){
-			this.cont+=1
-		}
-		// if (this._time%10 == 0)
-		// 	this.colocarObstaculos()
+		
+
+
+	}
+
+	async delay(n){
+		return new Promise(function(resolve){
+			setTimeout(resolve,n*1000);
+		});
 	}
 	// statePaused() {
     //     this.screenPausedGroup.toggleVisible();
 	// }
-	stateGameover() {
-		this.currentTimer.paused =! this.currentTimer.paused;
+
+
+	async stateGameover() {
+		// this.currentTimer.paused =! this.currentTimer.paused;
+		this.player.anims.play('animdead', true);
+		await this.delay(2);
+		this.player.anims.play('animdead', false);
 		EPT.Storage.setHighscore('EPT-highscore',this._score);
 		EPT.fadeOutIn(function(self){
 			self.screenGameoverGroup.toggleVisible();			
@@ -223,12 +255,13 @@ class Game extends Phaser.Scene {
 		this.tweens.add({targets: this.screenGameoverBack, x: 100, duration: 500, delay: 250, ease: 'Back'});
 		this.screenGameoverRestart.x = EPT.world.width+this.screenGameoverRestart.width+20;
 		this.tweens.add({targets: this.screenGameoverRestart, x: EPT.world.width-100, duration: 500, delay: 250, ease: 'Back'});
+		this.obstaculos.getChildren().forEach(function(child) {
+			child.setDepth(-1);
+		  });
 	}
     initUI() {
 
-		
-		// this.buttonPause = new Button(20, 20, 'button-pause', this.managePause, this);
-		// this.buttonPause.setOrigin(0,0);
+	
 
 		var fontScore = { font: '38px '+EPT.text['FONT'], fill: '#ffde00', stroke: '#000', strokeThickness: 5 };
 		var fontScoreWhite =  { font: '38px '+EPT.text['FONT'], fill: '#000', stroke: '#ffde00', strokeThickness: 5 };
@@ -239,26 +272,8 @@ class Game extends Phaser.Scene {
 		this.tweens.add({targets: this.textScore, y: 45, duration: 500, delay: 100, ease: 'Back'});
 	
 
-		// this.buttonPause.y = -this.buttonPause.height-20;
-        // this.tweens.add({targets: this.buttonPause, y: 20, duration: 500, ease: 'Back'});
 
 		var fontTitle = { font: '48px '+EPT.text['FONT'], fill: '#000', stroke: '#ffde00', strokeThickness: 10 };
-
-		this.screenPausedGroup = this.add.group();
-        this.screenPausedBg = this.add.sprite(0, 0, 'overlay');
-        this.screenPausedBg.setAlpha(0.95);
-        this.screenPausedBg.setOrigin(0, 0);
-		this.screenPausedText = this.add.text(EPT.world.centerX, 100, EPT.text['gameplay-paused'], fontTitle);
-		this.screenPausedText.setOrigin(0.5,0);
-		this.screenPausedBack = new Button(100, EPT.world.height-100, 'button-mainmenu', this.stateBack, this);
-		this.screenPausedBack.setOrigin(0,1);
-		this.screenPausedContinue = new Button(EPT.world.width-100, EPT.world.height-100, 'button-continue', this.managePause, this);
-		this.screenPausedContinue.setOrigin(1,1);
-		this.screenPausedGroup.add(this.screenPausedBg);
-		this.screenPausedGroup.add(this.screenPausedText);
-		this.screenPausedGroup.add(this.screenPausedBack);
-		this.screenPausedGroup.add(this.screenPausedContinue);
-        this.screenPausedGroup.toggleVisible();
 
 		this.screenGameoverGroup = this.add.group();
         this.screenGameoverBg = this.add.sprite(0, 0, 'overlay');
@@ -278,10 +293,12 @@ class Game extends Phaser.Scene {
 		this.screenGameoverGroup.add(this.screenGameoverRestart);
 		this.screenGameoverGroup.add(this.screenGameoverScore);
 		this.screenGameoverGroup.toggleVisible();
+		this.screenGameoverGroup.getChildren().forEach(function(sprite) {
+			sprite.setDepth(0); 
+		  });
     }
     addPoints() {
-		if(this._time%10 == 0)
-			this._score += 1;
+		this._score+=1;
         this.textScore.setText(EPT.text['gameplay-score']+this._score);
         
 
@@ -314,8 +331,9 @@ class Game extends Phaser.Scene {
 						active: true,
 						lifespan: 2000,
 						gravityY: 1000,
-						quantity: 250
-					});
+						quantity: 250,
+						setDepth: 1,
+					}); 
 					emitter.explode();
 				}
 			});
@@ -325,15 +343,21 @@ class Game extends Phaser.Scene {
 	colocarObstaculos(){
 		const {height, width } = EPT.world;
 
-		const obsNum = Math.floor(Math.random()*3)+1;
-		const distance = Phaser.Math.Between(600,900);
-		const obsHeight = [100, height-30];
+		// for (let i = 0; i < 10; i++) {
+		// 	this.obstacle = this.obstacles.create(width, Math.random() * 400, 'obs1');
+		// 	this.obstacle.setVelocityX(-this.obstacleSpeed); // velocidade inicial
+		//   }
 
-		this.obs = this.physics.add.sprite(width, height/2, 'obs1' ).setOrigin(0,0);
-		this.physics.moveTo(this.obs, 0, height/2, this.gameSpeed*100);
 
-		console.log(this.obs.x);
-		// width+distance, obsHeight[Math.floor(Math.random()*2)
+		if (this.obstaculos.getLength() === 0 || this.obstaculos.getChildren()[this.obstaculos.getLength() - 1].x < 400) {
+			// Crie um novo obstáculo
+			let i = 1; //Phaser.Math.Between(1, 3);
+			console.log(i);
+			this.obstaculo = this.obstaculos.create(800, Math.random() * 400, `obs${i}`);
+			this.obstaculo.setVelocityX(-200);
+			this.obstaculo.setDepth(0);
+		}
+
 
 	}
 

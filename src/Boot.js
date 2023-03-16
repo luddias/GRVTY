@@ -4,6 +4,9 @@ class Boot extends Phaser.Scene {
     }
     preload() {
         this.load.image('background', 'img/background.png');
+        this.load.image('telaamarela', 'img/map.png');
+        this.load.image('loading-background', 'img/loading-background.png');
+        this.load.image('fundo2', 'img/fundo.png');
         this.load.image('predios', 'img/predios.png');
         this.load.image('logo-enclave', 'img/logo-enclave.png');
         this.load.image('tile2', 'img/tile2.png');

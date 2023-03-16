@@ -4,7 +4,7 @@ class MainMenu extends Phaser.Scene {
         this.bgFilesLoaded = false;
     }
     create() {
-        this.add.sprite(0, 0, 'background').setOrigin(0,0);
+        this.add.sprite(0, 0, 'fundo2').setOrigin(0,0);
 
 		EPT.Storage.initUnset('EPT-highscore', 0);
 		var highscore = EPT.Storage.get('EPT-highscore');
@@ -12,23 +12,23 @@ class MainMenu extends Phaser.Scene {
         this.waitingForSettings = false;
 
         var title = this.add.sprite(EPT.world.centerX, EPT.world.centerY-50, 'title');
-        title.setOrigin(0.5);
+        title.setOrigin(0.5).setScale(0.18);;
 
         this.input.keyboard.on('keydown', this.handleKey, this);
 
-        this.tweens.add({targets: title, angle: title.angle-2, duration: 1000, ease: 'Sine.easeInOut' });
-        this.tweens.add({targets: title, angle: title.angle+4, duration: 2000, ease: 'Sine.easeInOut', yoyo: 1, loop: -1, delay: 1000 });
+        this.tweens.add({targets: title, angle: title.angle-1, duration: 1000, ease: 'Sine.easeInOut' });
+        this.tweens.add({targets: title, angle: title.angle+1, duration: 2000, ease: 'Sine.easeInOut', yoyo: 1, loop: -1, delay: 1000 });
 
         this.buttonSettings = new Button(20, 20, 'button-settings', this.clickSettings, this);
         this.buttonSettings.setOrigin(0, 0);
 
-        var buttonEnclave = new Button(20, EPT.world.height-40, 'logo-enclave', this.clickEnclave, this, 'static');
-        buttonEnclave.setOrigin(0, 1);
+        var buttonEnclave = new Button(20, EPT.world.height-2, 'logo-enclave', this.clickEnclave, this, 'static');
+        buttonEnclave.setOrigin(0, 1).setScale(0.3);;
 
         this.buttonStart = new Button(EPT.world.width-20, EPT.world.height-20, 'button-start', this.clickStart, this);
         this.buttonStart.setOrigin(1, 1);
 
-		var fontHighscore = { font: '38px '+EPT.text['FONT'], fill: '#ffde00', stroke: '#000', strokeThickness: 5 };
+		var fontHighscore = { font: '38px '+EPT.text['FONT'], fill: '#e0bcdd', stroke: '#4b0082', strokeThickness: 5 };
 		var textHighscore = this.add.text(EPT.world.width-30, 60, EPT.text['menu-highscore']+highscore, fontHighscore);
 		textHighscore.setOrigin(1, 0);
 
@@ -71,7 +71,7 @@ class MainMenu extends Phaser.Scene {
     }
     clickEnclave() {
         EPT.Sfx.play('click');
-        window.top.location.href = 'https://enclavegames.com/';
+        window.top.location.href = 'https://www.crunchyroll.com/pt-br/series/GRMG8ZQZR/one-piece';
     }
     clickSettings() {
         if(this.bgFilesLoaded) {
@@ -146,14 +146,12 @@ class MainMenu extends Phaser.Scene {
                 ['button-achievements', 'img/button-achievements.png', {frameWidth:110,frameHeight:110}],
                 ['button-pause', 'img/button-pause.png', {frameWidth:80,frameHeight:80}],
                 ['button-credits', 'img/button-credits.png', {frameWidth:80,frameHeight:80}],
-                ['button-sound-on', 'img/button-sound-on.png', {frameWidth:80,frameHeight:80}],
-                ['button-sound-off', 'img/button-sound-off.png', {frameWidth:80,frameHeight:80}],
                 ['button-music-on', 'img/button-music-on.png', {frameWidth:80,frameHeight:80}],
                 ['button-music-off', 'img/button-music-off.png', {frameWidth:80,frameHeight:80}],
                 ['button-back', 'img/button-back.png', {frameWidth:70,frameHeight:70}]
             ],
             'audio': [
-                ['sound-click', ['sfx/audio-button.m4a','sfx/audio-button.mp3','sfx/audio-button.ogg']],
+
                 ['music-theme', ['sfx/music-bitsnbites-liver.m4a','sfx/music-bitsnbites-liver.mp3','sfx/music-bitsnbites-liver.ogg']]
             ]
         };            
@@ -167,7 +165,6 @@ class MainMenu extends Phaser.Scene {
             console.log('[EPT] All files loaded in the background.');
             this.bgFilesLoaded = true;
             EPT.Sfx.manage('music', 'init', this);
-            EPT.Sfx.manage('sound', 'init', this);
             if(this.waitingForSettings) {
                 this.clickSettings();
             }
