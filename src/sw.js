@@ -33,7 +33,6 @@ var appShellFiles = [
   './js/Story.js',
   './js/Game.js',
   './img/background.png',
-  './img/banner-beer.png',
   './img/button-achievements.png',
   './img/button-back.png',
   './img/button-beer.png',
@@ -49,17 +48,16 @@ var appShellFiles = [
   './img/button-sound-on.png',
   './img/button-start.png',
   './img/button-tryagain.png',
-  './img/clickme.png',
   './img/enclave-phaser-template.png',
-  './img/fork.png',
   './img/loading-background.png',
   './img/logo-enclave.png',
   './img/overlay.png',
   './img/particle.png',
   './img/pattern.png',
   './img/title.png',
-  './img/player.png',
-  './img/tile.png'
+  './img/tile.png',
+  './img/nera.png',
+  './img/predios.png',
   
 ];
 

@@ -28,14 +28,21 @@ class Game extends Phaser.Scene {
 
 		this.anims.create({
 			key: 'playerAnim',
-			frames: this.anims.generateFrameNumbers('splayer', { start: 1, end: 13 }),
+			frames: this.anims.generateFrameNumbers('splayer', { start: 1, end: 8 }),
 			frameRate: 5,
 			repeat: -1
 		});
 		
 		this.anims.create({
 			key: 'animdead',
-			frames: this.anims.generateFrameNumbers('splayer', { start: 14, end: 15 }),
+			frames: this.anims.generateFrameNumbers('splayer', { start: 11, end: 13 }),
+			frameRate: 5,
+			repeat: 1
+		});
+
+		this.anims.create({
+			key: 'monsterAnim',
+			frames: this.anims.generateFrameNumbers('bat', { start: 1, end: 5}),
 			frameRate: 5,
 			repeat: -1
 		});
@@ -43,40 +50,23 @@ class Game extends Phaser.Scene {
 		this.ground = this.add.tileSprite(0, height, width, 26, 'tile1').setOrigin(0,1);
 		this.upGround = this.add.tileSprite(0, 0, width, 26, 'tile2').setOrigin(0,1);
 		this.upGround.setScale(1, -1); // vira verticalmente
-		// this.buttonDummy = new Button(EPT.world.centerX, EPT.world.centerY, 'clickme', this.addPoints, this, 'static');
-        // this.buttonDummy.setOrigin(0.5,0.5);
-        // this.buttonDummy.setAlpha(0);
-        // this.buttonDummy.setScale(0.1);
-        // this.tweens.add({targets: this.buttonDummy, alpha: 1, duration: 500, ease: 'Linear'});
-        // this.tweens.add({targets: this.buttonDummy, scale: 1, duration: 500, ease: 'Back'});
-		this.player = this.physics.add.sprite(150, height, 'splayer')
+
+		this.player = this.physics.add.sprite(200, height-20, 'splayer')
 		.setOrigin(0.5,0.5)
 		.setCollideWorldBounds(true)
 		.setGravityY(0)
-		.setScale(2,2);
+		.setScale(2);
 
 		this.player.angle = 0;
 
-		this.player.anims.play('playerAnim', true);0
+		this.player.anims.play('playerAnim', true);
 		
 
 		this.physics.add.collider(this.player, this.ground);
 		this.physics.add.collider(this.player, this.upGround);
 
         this.initUI();
-        // this.currentTimer = this.time.addEvent({
-        //     delay: 1000,
-        //     callback: function(){
-        //         this._time--;
-        //         this.textTime.setText(EPT.text['gameplay-timeleft']+this._time);
-        //         if(!this._time) {
-        //             this._runOnce = false;
-        //             this.stateStatus = 'gameover';
-        //         }
-        //     },
-        //     callbackScope: this,
-        //     loop: true
-        // });
+
 
 		this.input.keyboard.on('keydown', this.handleKey, this);
         this.cameras.main.fadeIn(250);
@@ -84,13 +74,7 @@ class Game extends Phaser.Scene {
     }
 	update() {
 		switch(this.stateStatus) {
-			// case 'paused': {
-			// 	if(!this._runOnce) {
-			// 		this.statePaused();
-			// 		this._runOnce = true;
-			// 	}
-			// 	break;
-			// }
+
 			case 'gameover': {
 				if(!this._runOnce) {
 					this.stateGameover();
@@ -161,32 +145,6 @@ class Game extends Phaser.Scene {
 		this.player.scaleX *= (-1);
 	}
 
-    // managePause() {
-    //     this._gamePaused =! this._gamePaused;
-    //     this.currentTimer.paused =! this.currentTimer.paused;
-	// 	EPT.Sfx.play('click');
-	// 	if(this._gamePaused) {
-	// 		EPT.fadeOutIn(function(self){
-
-	// 			self.stateStatus = 'paused';
-	// 			self._runOnce = false;
-	// 		}, this);
-	// 		this.screenPausedBack.x = -this.screenPausedBack.width-20;
-	// 		this.tweens.add({targets: this.screenPausedBack, x: 100, duration: 500, delay: 250, ease: 'Back'});
-	// 		this.screenPausedContinue.x = EPT.world.width+this.screenPausedContinue.width+20;
-	// 		this.tweens.add({targets: this.screenPausedContinue, x: EPT.world.width-100, duration: 500, delay: 250, ease: 'Back'});
-	// 	}
-	// 	else {
-	// 		EPT.fadeOutIn(function(self){
-	// 			self._stateStatus = 'playing';
-	// 			self._runOnce = false;
-	// 		}, this);
-	// 		this.screenPausedBack.x = 100;
-	// 		this.tweens.add({targets: this.screenPausedBack, x: -this.screenPausedBack.width-20, duration: 500, ease: 'Back'});
-	// 		this.screenPausedContinue.x = EPT.world.width-100;
-	// 		this.tweens.add({targets: this.screenPausedContinue, x: EPT.world.width+this.screenPausedContinue.width+20, duration: 500, ease: 'Back'});
-    //     }
-    // }
 	async statePlaying() {
 		this._time = this.time.now - this.startTime;
 		this.ground.tilePositionX += this.gameSpeed;
@@ -205,27 +163,26 @@ class Game extends Phaser.Scene {
 			loop: true
 		});	
 
-		this.physics.add.collider(this.player, this.obstaculos, () =>{
-			console.log('Você colidiu com um obstáculo!');
+
+
+		this.physics.add.collider(this.player, this.obstaculos, (player, obstaculo) =>{
 			this.gOver=true;
 		});
 
 		if(this.gOver===true){
+			
 			this._runOnce = false;
 			this.obstaculos.getChildren().forEach(function(child) {
-				child.setVelocityX(0); 
-				child.setVelocityY(0); 
+				child.setVelocity(0); 
+				child.setVelocity(0); 
 			  });
 			this.player.setVelocity(0);
 			this.gameSpeed=0;
 			this.player.anims.play('playerAnim', false);
 			this.stateStatus = 'gameover';
 
-			  
-
 		}
 		
-
 
 	}
 
@@ -234,9 +191,6 @@ class Game extends Phaser.Scene {
 			setTimeout(resolve,n*1000);
 		});
 	}
-	// statePaused() {
-    //     this.screenPausedGroup.toggleVisible();
-	// }
 
 
 	async stateGameover() {
@@ -263,8 +217,8 @@ class Game extends Phaser.Scene {
 
 	
 
-		var fontScore = { font: '38px '+EPT.text['FONT'], fill: '#ffde00', stroke: '#000', strokeThickness: 5 };
-		var fontScoreWhite =  { font: '38px '+EPT.text['FONT'], fill: '#000', stroke: '#ffde00', strokeThickness: 5 };
+		var fontScore = { font: '38px '+EPT.text['FONT'], fill: '#e0bcdd', stroke: '#4b0082', strokeThickness: 5 };
+		var fontScoreWhite =  { font: '38px '+EPT.text['FONT'], fill: '#e0bcdd', stroke: '#4b0082', strokeThickness: 5 };
 		this.textScore = this.add.text(EPT.world.width-30, 45, EPT.text['gameplay-score']+this._score, fontScore);
 		this.textScore.setOrigin(1,0);
 
@@ -273,7 +227,7 @@ class Game extends Phaser.Scene {
 	
 
 
-		var fontTitle = { font: '48px '+EPT.text['FONT'], fill: '#000', stroke: '#ffde00', strokeThickness: 10 };
+		var fontTitle = { font: '48px '+EPT.text['FONT'], fill: '#e0bcdd', stroke: '#4b0082', strokeThickness: 10 };
 
 		this.screenGameoverGroup = this.add.group();
         this.screenGameoverBg = this.add.sprite(0, 0, 'overlay');
@@ -349,14 +303,22 @@ class Game extends Phaser.Scene {
 		//   }
 
 
-		if (this.obstaculos.getLength() === 0 || this.obstaculos.getChildren()[this.obstaculos.getLength() - 1].x < 400) {
+		if (this.obstaculos.getLength() === 0 || this.obstaculos.getChildren()[this.obstaculos.getLength() - 1].x < 30) {
 			// Crie um novo obstáculo
-			let i = 1; //Phaser.Math.Between(1, 3);
-			console.log(i);
+
+			let i = Phaser.Math.Between(1, 4);
+			
 			this.obstaculo = this.obstaculos.create(800, Math.random() * 400, `obs${i}`);
 			this.obstaculo.setVelocityX(-200);
 			this.obstaculo.setDepth(0);
+			if (i===4){
+				this.obstaculo.setScale(2);
+				this.obstaculo.anims.play('monsterAnim', true);
+			}
+
 		}
+
+
 
 
 	}

@@ -54,22 +54,13 @@ class Settings extends Phaser.Scene {
 		titleCredits.setOrigin(0.5);
 		var titleCreditsText = this.add.text(EPT.world.centerX, offsetTopCredits+100, EPT.text['madeby'], fontSubtitle);
 		titleCreditsText.setOrigin(0.5,0);
-		var titleCreditsLogo = new Button(EPT.world.centerX, offsetTopCredits+200, 'logo-enclave', this.clickEnclave, this, 'noframes');
-		titleCreditsLogo.setOrigin(0.5,0);
-
-		var titleCrew = this.add.text(EPT.world.centerX, offsetTopCrew, EPT.text['team'], fontSubtitle);
+		var titleCrew = this.add.text(EPT.world.centerX, offsetTopCrew-50, EPT.text['team'], fontSubtitle);
 		titleCrew.setOrigin(0.5,0);
-		var titleCrewAndrzej = this.add.text(EPT.world.centerX, offsetTopCrew+80, 'Andrzej Mazur - '+EPT.text['coding'], fontSubtitle);
-		titleCrewAndrzej.setOrigin(0.5,0);
-		var titleCrewEwa = this.add.text(EPT.world.centerX, offsetTopCrew+140, 'Ewa Mazur - '+EPT.text['design'], fontSubtitle);
-		titleCrewEwa.setOrigin(0.5,0);
-		var titleCrewKasia = this.add.text(EPT.world.centerX, offsetTopCrew+200, 'Kasia Mazur - '+EPT.text['testing'], fontSubtitle);
-		titleCrewKasia.setOrigin(0.5,0);
-		var titleCreditsMusic = this.add.text(EPT.world.centerX, offsetTopCrew+320, EPT.text['musicby']+' Bensound', fontSubtitle);
-		titleCreditsMusic.setOrigin(0.5,0);
+		var titleCreditsLogo = new Button(EPT.world.centerX, offsetTopCredits+200, 'logo-enclave', this.clickEnclave, this, 'noframes');
+		titleCreditsLogo.setOrigin(0.5,0).setScale(0.5);
 
-		this.containerCredits.add([creditsBg,creditsBack,titleCredits,titleCreditsText,titleCreditsLogo]);
-		this.containerCredits.add([titleCrew,titleCrewAndrzej,titleCrewEwa,titleCrewKasia,titleCreditsMusic]);
+
+		this.containerCredits.add([creditsBg,creditsBack,titleCredits,titleCreditsText,titleCrew,titleCreditsLogo]);
 
 		
 

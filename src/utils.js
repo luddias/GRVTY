@@ -228,7 +228,7 @@ EPT.Lang = {
       'settings': 'CONFIGURAÇÕES',
       'music-on': 'Musica: ON',
       'music-off': 'Musica: OFF',
-      'credits': 'CREDITOS',
+      'credits': 'CRÉDITOS',
       'madeby': 'made by',
       'team': 'Ludmila e Matheus',
       'coding': 'coding',
@@ -258,7 +258,7 @@ EPT.Lang = {
       'gameplay-paused': 'PAUSED',
       'gameplay-gameover': 'GAME OVER',
       'menu-highscore': 'Highscore: ',
-      'screen-story-howto': 'Story / how to play\nscreen'
+      'screen-story-howto': 'Nera é uma garota esperançosa, corre destemida\n pelo mundo ordinário e sem cor.Um mundo,\n no qual a própria gravidade perdeu seu sentido\nO que será que ela busca?\n\n[Pressione espaço para mudar a gravidade]'
     },
     'pl': {
       'FONT': 'Arial',

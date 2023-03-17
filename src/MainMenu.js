@@ -121,30 +121,24 @@ class MainMenu extends Phaser.Scene {
     }
     startPreloadInTheBackground() {
         console.log('[EPT] Starting background loading...');
-        this.load.image('img/clickme');
         this.load.image('img/tile');
-        this.load.image('img/player');
+        this.load.image('img/nera');
         this.load.once('filecomplete', this.addFiles, this);
         this.load.start();
     }
     addFiles() {
         var resources = {
             'image': [
-                ['clickme', 'img/clickme.png'],
                 ['overlay', 'img/overlay.png'],
-                ['button-beer', 'img/button-beer.png'],
-                ['banner-beer', 'img/banner-beer.png'],
-                ['banner-beer', 'img/banner-beer.png'],
                 ['particle', 'img/particle.png'],
                 ['tile','img/tile.png'],
-                ['player', 'img/player.png']
+                ['splayer', 'img/nera.png']
             ],
             'spritesheet': [
                 ['button-continue', 'img/button-continue.png', {frameWidth:180,frameHeight:180}],
                 ['button-mainmenu', 'img/button-mainmenu.png', {frameWidth:180,frameHeight:180}],
                 ['button-restart', 'img/button-tryagain.png', {frameWidth:180,frameHeight:180}],
                 ['button-achievements', 'img/button-achievements.png', {frameWidth:110,frameHeight:110}],
-                ['button-pause', 'img/button-pause.png', {frameWidth:80,frameHeight:80}],
                 ['button-credits', 'img/button-credits.png', {frameWidth:80,frameHeight:80}],
                 ['button-music-on', 'img/button-music-on.png', {frameWidth:80,frameHeight:80}],
                 ['button-music-off', 'img/button-music-off.png', {frameWidth:80,frameHeight:80}],
