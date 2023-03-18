@@ -9,7 +9,8 @@ class Game extends Phaser.Scene {
 		var spaceBar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 		var tileInfo = this.textures.get('tile').getSourceImage();
 		this.gameSpeed = 5;
-		this.obstaculos =this.physics.add.group();
+		this.obstaculosUp =this.physics.add.group();
+		this.obstaculosDown =this.physics.add.group();
 		this.obstacleSpeed = 200; // velocidade inicial dos obstáculos
 		this.speedIncreaseInterval = 50000;
 		this.gOver=false;
@@ -42,7 +43,7 @@ class Game extends Phaser.Scene {
 
 		this.anims.create({
 			key: 'monsterAnim',
-			frames: this.anims.generateFrameNumbers('bat', { start: 1, end: 5}),
+			frames: this.anims.generateFrameNumbers('bat', { start: 0, end: 4}),
 			frameRate: 5,
 			repeat: -1
 		});
@@ -58,9 +59,8 @@ class Game extends Phaser.Scene {
 		.setScale(2);
 
 		this.player.angle = 0;
-
 		this.player.anims.play('playerAnim', true);
-		
+		this.define()
 
 		this.physics.add.collider(this.player, this.ground);
 		this.physics.add.collider(this.player, this.upGround);
@@ -165,20 +165,28 @@ class Game extends Phaser.Scene {
 
 
 
-		this.physics.add.collider(this.player, this.obstaculos, (player, obstaculo) =>{
+		this.physics.add.collider(this.player, this.obstaculosUp, (player, obstaculo) =>{
+			this.gOver=true;
+		});
+
+		this.physics.add.collider(this.player, this.obstaculosDown, (player, obstaculo) =>{
 			this.gOver=true;
 		});
 
 		if(this.gOver===true){
 			
 			this._runOnce = false;
-			this.obstaculos.getChildren().forEach(function(child) {
+			this.obstaculosUp.getChildren().forEach(function(child) {
 				child.setVelocity(0); 
 				child.setVelocity(0); 
+				child.anims.stop('monsterAnim', true);
+				child.setDepth(0);
 			  });
+
 			this.player.setVelocity(0);
 			this.gameSpeed=0;
-			this.player.anims.play('playerAnim', false);
+			this.player.anims.stop('playerAnim', true);
+			
 			this.stateStatus = 'gameover';
 
 		}
@@ -195,9 +203,9 @@ class Game extends Phaser.Scene {
 
 	async stateGameover() {
 		// this.currentTimer.paused =! this.currentTimer.paused;
+		
 		this.player.anims.play('animdead', true);
 		await this.delay(2);
-		this.player.anims.play('animdead', false);
 		EPT.Storage.setHighscore('EPT-highscore',this._score);
 		EPT.fadeOutIn(function(self){
 			self.screenGameoverGroup.toggleVisible();			
@@ -210,7 +218,7 @@ class Game extends Phaser.Scene {
 		this.screenGameoverRestart.x = EPT.world.width+this.screenGameoverRestart.width+20;
 		this.tweens.add({targets: this.screenGameoverRestart, x: EPT.world.width-100, duration: 500, delay: 250, ease: 'Back'});
 		this.obstaculos.getChildren().forEach(function(child) {
-			child.setDepth(-1);
+			child.setDepth(1);
 		  });
 	}
     initUI() {
@@ -248,7 +256,7 @@ class Game extends Phaser.Scene {
 		this.screenGameoverGroup.add(this.screenGameoverScore);
 		this.screenGameoverGroup.toggleVisible();
 		this.screenGameoverGroup.getChildren().forEach(function(sprite) {
-			sprite.setDepth(0); 
+			sprite.setDepth(1); 
 		  });
     }
     addPoints() {
@@ -273,9 +281,10 @@ class Game extends Phaser.Scene {
 				onUpdateScope: this, onCompleteScope: this,
 				onUpdate: function(){
 					this.screenGameoverScore.setText(EPT.text['gameplay-score']+Math.floor(this.pointsTween.getValue()));
+					
 				},
 				onComplete: function(){
-					var emitter = this.add.particles('particle').createEmitter({
+					var emitter = this.add.particles('particle').setDepth(5).createEmitter({
 						x: this.screenGameoverScore.x+30,
 						y: this.screenGameoverScore.y,
 						speed: { min: -600, max: 600 },
@@ -286,11 +295,13 @@ class Game extends Phaser.Scene {
 						lifespan: 2000,
 						gravityY: 1000,
 						quantity: 250,
-						setDepth: 1,
+						layer:4,
 					}); 
+					
 					emitter.explode();
 				}
 			});
+			
 		}
 	}
 
@@ -303,24 +314,51 @@ class Game extends Phaser.Scene {
 		//   }
 
 
-		if (this.obstaculos.getLength() === 0 || this.obstaculos.getChildren()[this.obstaculos.getLength() - 1].x < 30) {
+		if (this.obstaculosUp.getLength() === 0 || this.obstaculosUp.getChildren()[this.obstaculosUp.getLength() - 1].x < 30) {
 			// Crie um novo obstáculo
 
 			let i = Phaser.Math.Between(1, 4);
+			let r =  Math.round(Math.random()) === 0 ? Math.random()*200 : Phaser.Math.Between(height-50, height);
 			
-			this.obstaculo = this.obstaculos.create(800, Math.random() * 400, `obs${i}`);
-			this.obstaculo.setVelocityX(-200);
+			this.obstaculo = this.obstaculosUp.create(800, r, `obs${i}`);
+			this.obstaculo.setVelocityX(-500);
+			this.gameSpeed+=0.05
 			this.obstaculo.setDepth(0);
 			if (i===4){
+				if(this.obstaculo.y<40){
+					this.obstaculo.y+=60;
+				}
+				else if(this.obstaculo.y>height-30){
+					this.obstaculo.y-=60;
+				}
 				this.obstaculo.setScale(2);
+
 				this.obstaculo.anims.play('monsterAnim', true);
+				this.obstaculo.setDepth(0);
 			}
 
 		}
+	
+		// if (this.obstaculosDown.getLength() === 0 || this.obstaculosDown.getChildren()[this.obstaculosDown.getLength() - 1].x < 30) {
+		// 	// Crie um novo obstáculo
 
+		// 	let i = Phaser.Math.Between(1, 4);
+			
+		// 	this.obstaculo = this.obstaculosDown.create(800, Math.random((height/2)+30, height), `obs${i}`);
+		// 	this.obstaculo.setVelocityX(-200);
+		// 	this.obstaculo.setDepth(0);
+		// 	if (i===4){
+		// 		this.obstaculo.setScale(2);
+		// 		this.obstaculo.anims.play('monsterAnim', true);
+		// 	}
 
+		// }
 
+	}
 
+	async define(){
+		await this.delay(1);
+		this.player.body.setSize(this.player.width, this.player.height);
 	}
 
 	
