@@ -331,7 +331,7 @@ class Game extends Phaser.Scene {
 				else if(this.obstaculo.y>height-30){
 					this.obstaculo.y-=60;
 				}
-				this.obstaculo.setScale(2);
+				this.obstaculo.setScale(1.5);
 
 				this.obstaculo.anims.play('monsterAnim', true);
 				this.obstaculo.setDepth(0);
@@ -339,20 +339,6 @@ class Game extends Phaser.Scene {
 
 		}
 	
-		// if (this.obstaculosDown.getLength() === 0 || this.obstaculosDown.getChildren()[this.obstaculosDown.getLength() - 1].x < 30) {
-		// 	// Crie um novo obstáculo
-
-		// 	let i = Phaser.Math.Between(1, 4);
-			
-		// 	this.obstaculo = this.obstaculosDown.create(800, Math.random((height/2)+30, height), `obs${i}`);
-		// 	this.obstaculo.setVelocityX(-200);
-		// 	this.obstaculo.setDepth(0);
-		// 	if (i===4){
-		// 		this.obstaculo.setScale(2);
-		// 		this.obstaculo.anims.play('monsterAnim', true);
-		// 	}
-
-		// }
 
 	}
 

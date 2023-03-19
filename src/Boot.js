@@ -18,7 +18,7 @@ class Boot extends Phaser.Scene {
 
 
         this.load.spritesheet('splayer', 'img/nera.png', { frameWidth: 30, frameHeight: 30 });
-        this.load.spritesheet('bat', 'img/bat.png', { frameWidth: 100, frameHeight: 80 });
+        this.load.spritesheet('bat', 'img/bat.png', { frameWidth: 32, frameHeight: 32 });
         WebFont.load({ custom: { families: ['Berlin'], urls: ['fonts/BRLNSDB.css'] } });
     }
     create() {
